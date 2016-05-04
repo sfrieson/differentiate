@@ -1,0 +1,28 @@
+{
+  "name": "discriminate",
+  "version": "0.0.1",
+  "description": "A JavaScript utility for diffing",
+  "main": "src",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sfrieson/discriminate.git"
+  },
+  "keywords": [
+    "diff",
+    "diffing",
+    "differences",
+    "discriminate"
+  ],
+  "author": "Steven Frieson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sfrieson/discriminate/issues"
+  },
+  "homepage": "https://github.com/sfrieson/discriminate#readme",
+  "devDependencies": {
+    "jasmine": "^2.4.1"
+  }
+}
