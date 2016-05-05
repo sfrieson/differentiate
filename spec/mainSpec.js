@@ -8,7 +8,9 @@ describe("Basic functionality:", function(){
   });
 });
 
-//Primitives
+// ******************
+// *** Primitives ***
+// ******************
 describe("Primitives:", function(){
   describe("When arguments are equal (except undefined)", function(){
     var name = "Jackson 5",
@@ -46,7 +48,10 @@ describe("Primitives:", function(){
   });
 });
 
-//Objects
+
+// ********************
+// *** Object Types ***
+// ********************
 describe("Objects:", function(){
   var obj1 = {name: "John Smith", age: 25},
       obj2 = {name: "John Smith", age: 26, nationality: "British"},
@@ -60,7 +65,7 @@ describe("Objects:", function(){
       fn2 = function subtract(a,b){return a-b;},
       fnAnon = function(){return "Jasmine Testing";};
 
-  describe("When objects are the same reference,", function(){
+  describe("When object types are the same reference,", function(){
     var j5 = {jackson: 5},
         songs = ["ABC", "I'll Be There", "Rockin\' Robin"],
         sing = function(){return "She's a dance, dance, dance, dancing machine.";};
@@ -73,15 +78,35 @@ describe("Objects:", function(){
       ).toEqual(false);
     });
   });
-  describe("When objects are same type", function(){
-    it("should return false.", function(){
-      var result = diff(obj1,obj2);
-      expect( result.changed.hasOwnProperty('age') ).toEqual(true);
+  describe("When object types are same type", function(){
+    describe("and they look the same", function(){
+      it("should return false.", function(){
+        var result =  diff(obj1,{name: "John Smith", age: 25}) ||
+                      diff(arr1,["apple", "banana", "mango", "kiwi", "grapes", "lemon"]) ||
+                      diff(fn1,function add(a, b){return a+b;});
+        expect( result ).toEqual(false);
+      });
+    });
+    describe("and they look the different", function(){
+      it("should return the differences or the new fn.", function(){
+        var obj = diff(obj1,obj2);
+        expect( obj.changed.hasOwnProperty('age') ).toEqual(true);
+
+        var arr = diff(arr1,arr2);
+        arr = arr.removed.indexOf('mango') > -1 && arr.removed.indexOf('kiwi') > -1 &&
+              arr.added.indexOf('Mango') > -1 && arr.added.indexOf('pineapple') > -1;
+        expect( arr ).toEqual(true);
+
+        expect(diff(fn1,fn2)).toEqual(fn2);
+      });
     });
   });
 });
 
-//Options
+
+// ***************
+// *** Options ***
+// ***************
 describe("Options:",function(){
   describe("undefined: When undefined arguments are passed ", function(){
     it("should not throw a TypeError, and should check for primitive equality", function(){
