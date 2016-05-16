@@ -40,7 +40,8 @@ function primDiff (a, b, opt){
 function arrDiff (a, b, opt){
   var options = ["variableSizeArr", "fixedSizeArr"];
   opt = addOptions(opt, options, false);
-
+  //variable size as default;
+  if(!opt.variableSizeArr && !opt.fixedSizeArr) opt.variableSizeArr = true;
   var response;
   if(opt.variableSizeArr) response = variableSizeArrDiff(a,b,opt);
   if(opt.fixedSizeArr) response = fixedSizeArrDiff(a,b,opt);
