@@ -1,7 +1,7 @@
 if(!Array.isArray) Array.isArray = a => Object.prototype.toString.call(a) === "[object Array]";
 
 var diff = function (a, b, opt) {
-  var primitiveRegEx = /string|number|boolean|null|undefined|symbol/i;
+  var primitiveRegEx = /string|number|boolean|undefined|symbol/i; //excluding null
 
   var results = false;
   // Add on missing options
@@ -11,14 +11,15 @@ var diff = function (a, b, opt) {
   //If missing an argument and not using the option to allow for undefined variables
   if ((a === undefined || b === undefined) && !opt['undefined']) throw new TypeError("You must supply two arguments to diff.");
 
-  // Primitive equality or same reference
+  // Primitive equality (excluding null) or same reference
   if (a === b) return results;
 
   //Same Types
   if(typeof a === typeof b){
     if(primitiveRegEx.test(typeof a)) results = primDiff(a,b,opt);
-    else if(typeof a === "function")       results = fnDiff(a,b,opt);
-    else if(Array.isArray(a))              results = arrDiff(a,b,opt);
+    else if(a === null || b === null) results = b; // same as Different Types else
+    else if(typeof a === "function")  results = fnDiff(a,b,opt);
+    else if(Array.isArray(a))         results = arrDiff(a,b,opt);
     else                              results = objDiff(a,b,opt);
 
   //Different Types
@@ -37,11 +38,20 @@ function primDiff (a, b, opt){
 }
 
 function arrDiff (a, b, opt){
+  var options = ["variableSizeArr", "fixedSizeArr"];
+  opt = addOptions(opt, options, false);
+
+  var response;
+  if(opt.variableSizeArr) response = variableSizeArrDiff(a,b,opt);
+  if(opt.fixedSizeArr) response = fixedSizeArrDiff(a,b,opt);
+
+  if(response.diffFound) return response.results;
+  return false;
+}
+
+var variableSizeArrDiff = function(a,b,opt) {
+  var results = {added:[], removed:[] };
   var diffFound = false;
-  var results = {
-    added:[],
-    removed:[]
-  };
 
   a.forEach(function(item, i){
     var bIndex;
@@ -61,9 +71,34 @@ function arrDiff (a, b, opt){
     diffFound = true;
   }
 
-  if(diffFound) return results;
-  return false;
-}
+  return {results: results, diffFound: diffFound};
+};
+var fixedSizeArrDiff = function(a,b,opt) {
+  var results = {added:[], removed:[], changed:[] };
+  var diffFound = false;
+
+  a.forEach(function(item, i){
+    //Equivalent in absence or presence
+    if(item === b[i]) return;
+
+    //One doesn't exist
+    if(!item || !b[i]){
+      !item ? results.added.push(b[i]) : results.removed.push(item);
+      diffFound = true;
+    }
+    //both are present and seem different
+    else {
+      var diffResult;
+      if ((diffResult = diff(a[i],b[i], opt))){
+        results.changed.push(diffResult);
+        diffFound = true;
+      }
+    }
+
+  });
+
+  return {results: results, diffFound: diffFound};
+};
 
 
 function fnDiff (a, b, opt){
